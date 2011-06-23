@@ -34,5 +34,50 @@ app.get('/', function(req, res){
   });
 });
 
+app.use(function(req, res, next){
+  next(new NotFound(req.url));
+});
+
+// Error Handling
+function NotFound(path){
+  this.name = 'NotFound';
+  if (path) {
+    Error.call(this, 'Cannot find ' + path);
+    this.path = path;
+  } else {
+    Error.call(this, 'Not Found');
+  }
+  Error.captureStackTrace(this, arguments.callee);
+}
+
+NotFound.prototype.__proto__ = Error.prototype;
+
+app.error(function(err, req, res, next){
+  if (err instanceof NotFound) {
+    res.render('404',{
+        title: 'PagePerf can\'t find this page, sorry!',
+    });
+  } else {
+    next(err);
+  }
+});
+
+app.error(function(err, req, res){
+    console.log(err);
+    res.render("404",{
+        title: err,
+    });
+});
+
+// Error URLs
+app.get('/404', function(req, res){
+  throw new NotFound(req.url);
+});
+
+app.get('/500', function(req, res, next){
+  next(new Error('keyboard cat!'));
+});
+
+
 app.listen(3000);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
