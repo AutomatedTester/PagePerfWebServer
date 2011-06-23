@@ -5,7 +5,7 @@
 
 var express = require('express');
 
-var app = module.exports = express.createServer();
+var app = module.exports = express.createServer(express.logger());
 
 // Configuration
 
@@ -14,6 +14,7 @@ app.configure(function(){
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
   app.use(express.methodOverride());
+  app.use(express.logger({ format: '\x1b[1m:method\x1b[0m \x1b[33m:url\x1b[0m :response-time ms' }));
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
